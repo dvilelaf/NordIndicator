@@ -21,6 +21,7 @@ NordIndicator its a Python script that lets you connect, disconnect and check yo
 * ```systemctl --user start NordVPNindicator.service```
 * ```systemctl --user stop NordVPNindicator.service```
 
+## Snapshots
 ![Imgur](https://i.imgur.com/M4CAejU.png)
 
 ![Imgur](https://i.imgur.com/7iXgyY1.png)
