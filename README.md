@@ -12,7 +12,7 @@ NordIndicator is a Python script that lets you connect, disconnect and check you
 
 * [NordVPN CLI for GNU/Linux](https://support.nordvpn.com/es/Preguntas-frecuentes/Tutoriales-de-configuraci%c3%b3n/1636892662/Instalar-y-utilizar-NordVPN-en-Debian-Ubuntu-Raspberry-Pi-Elementary-OS-y-Linux-Mint.htm) is required to be installed.
 
-* NordIndicator has been only tested with elementary OS 5.1 (Ubuntu 18.04 based) but, due to its simplicity, making it work on those distros where it doesn't shouldn't be more than editing a couple of lines of code.
+* NordIndicator has been only tested with elementary OS 5.1 (Ubuntu 18.04 based) but, due to its simplicity, making it work on those distros where it doesn't shouldn't be more than editing a couple of lines of code. The same applies to other VPN providers.
 
 * The installation is made at user-level, so everything happens within your  home directory and no sudo permissions are needed.
 
