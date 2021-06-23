@@ -20,7 +20,7 @@ NordIndicator is a Python script that lets you connect, disconnect and check you
 ## Installation
 * ```python3 NordIndicator.py install```
 
-## Unistallation
+## Uninstallation
 * ```python3 NordIndicator.py uninstall```
 
 ## Snapshots
