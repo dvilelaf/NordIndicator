@@ -67,7 +67,7 @@ class VPNindicator:
     def __init__(self):
 
         self.vpnData = VPNstate()
-        self.onIconSet = False
+        self.status = 'Disconnected'
         self.indicator = appindicator.Indicator.new(self.APPINDICATOR_ID, self.off_icon, appindicator.IndicatorCategory.SYSTEM_SERVICES)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.indicator.set_menu(self.build_menu())
@@ -125,18 +125,19 @@ class VPNindicator:
         while not self.stopFlag:
             self.vpnData.update()
 
-            if self.vpnData.status == 'Connected':
-                if not self.onIconSet:
+            if self.status != self.vpnData.status:
+                self.status = self.vpnData.status
+
+                if self.status == 'Connected':
                     self.indicator.set_icon(self.on_icon)
-                    self.indicator.set_menu(self.build_menu())
-                    self.onIconSet = True
-            elif self.vpnData.status == 'Disconnected':
-                if self.onIconSet:
+
+                elif self.status == 'Disconnected':
                     self.indicator.set_icon(self.off_icon)
-                    self.indicator.set_menu(self.build_menu())
-                    self.onIconSet = False
-            else:
-                self.indicator.set_icon(self.error_icon)
+
+                else:
+                    self.indicator.set_icon(self.error_icon)
+
+                self.indicator.set_menu(self.build_menu())
 
             time.sleep(3)
 
