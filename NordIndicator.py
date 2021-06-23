@@ -165,9 +165,9 @@ class InstallationHandler:
     def __init__(self):
 
         # Directories
-        self.appName = __file__.replace('.py', '')
+        self.appName = (__file__.split('/')[-1] if '/' in __file__ else __file__).replace('.py', '')
         self.homeDir = f'/home/{getpass.getuser()}'
-        self.srcDir = os.path.realpath(__file__).replace(f'/{__file__}', '')
+        self.srcDir = os.path.realpath(__file__).replace(f'/{self.appName}.py', '')
         self.srcIconDir = f'{self.srcDir}/icons'
         self.dstBinDir = f'{self.homeDir}/.local/bin'
         self.dstIconDir = f'{self.homeDir}/.local/share/icons'
@@ -175,7 +175,7 @@ class InstallationHandler:
         self.dstAutostartDir = f'{self.homeDir}/.config/autostart'
 
         # Files
-        self.srcScript = f'{self.srcDir}/{__file__}'
+        self.srcScript = f'{self.srcDir}/{self.appName}.py'
         self.icons = [f for f in os.listdir(self.srcIconDir) if f.endswith('.png')]
         self.dstDesktopFile = f'{self.dstAppDir}/{self.appName}.desktop'
 
@@ -210,7 +210,7 @@ class InstallationHandler:
 
     def uninstall(self):
         # Script
-        self.safeDelete(f'{self.dstBinDir}/{__file__}')
+        self.safeDelete(f'{self.dstBinDir}/{self.appName}.py')
 
         # Icons
         for icon in self.icons:
@@ -229,7 +229,7 @@ class InstallationHandler:
                    "Version=1.0\n" \
                    "Type=Application\n" \
                    "Terminal=false\n" \
-                   f"Exec=sh -c 'python3 $HOME/.local/bin/{__file__}'\n" \
+                   f"Exec=sh -c 'python3 $HOME/.local/bin/{self.appName}.py'\n" \
                    "Name=NordVPN indicator\n" \
                    "Icon=vpn_on\n"
 
