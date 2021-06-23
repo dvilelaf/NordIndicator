@@ -160,61 +160,87 @@ class VPNindicator:
         subprocess.run(['nordvpn', 'd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
-def install():
+class InstallationHandler:
 
-    scriptDir = os.path.realpath(__file__).replace('NordIndicator.py', '')
-    homeDir = f'/home/{getpass.getuser()}/'
+    def __init__(self):
 
-    # Copy script
-    installDir = f'{homeDir}.local/bin/'
-    if not os.path.isdir(installDir):
-        os.makedirs(installDir)
+        # Directories
+        self.appName = __file__.replace('.py', '')
+        self.homeDir = f'/home/{getpass.getuser()}'
+        self.srcDir = os.path.realpath(__file__).replace(__file__, '')
+        self.srcIconDir = f'{self.srcDir}/icons'
+        self.dstBinDir = f'{self.homeDir}/.local/bin'
+        self.dstIconDir = f'{self.homeDir}/.local/share/icons'
+        self.dstAppDir = f'{self.homeDir}/.local/share/applications'
+        self.dstAutostartDir = f'{self.homeDir}/.config/autostart'
 
-    subprocess.run(['cp', f'{scriptDir}NordIndicator.py', installDir])
-
-    # Copy icons
-    iconDir = f'{homeDir}.local/share/icons/'
-    subprocess.run(['cp', f'{scriptDir}vpn_off.png', iconDir])
-    subprocess.run(['cp', f'{scriptDir}vpn_on.png', iconDir])
-    subprocess.run(['cp', f'{scriptDir}vpn_error.png', iconDir])
-
-    # Copy desktop file
-    subprocess.run(['cp', f'{scriptDir}NordIndicator.desktop', f'{homeDir}/.local/share/applications/'])
-
-    # Autostart
-    autostartDir = f'{homeDir}.config/autostart/'
-    if not os.path.isdir(autostartDir):
-        os.makedirs(autostartDir)
-
-    subprocess.run(['cp', f'{scriptDir}NordIndicator.desktop', autostartDir])
+        # Files
+        self.srcScript = f'{self.srcDir}/{__file__}'
+        self.icons = [f for f in os.listdir(self.srcIconDir) if f.endswith('.png')]
+        self.dstDesktopFile = f'{self.dstAppDir}/{self.appName}.desktop'
 
 
-def uninstall():
+    @staticmethod
+    def safeCopy(file, destDir):
+        if not os.path.isdir(destDir):
+            os.makedirs(destDir)
+        subprocess.run(['cp', file, destDir])
 
-    homeDir = f'/home/{getpass.getuser()}/'
 
-    # Delete script
-    if os.path.isfile(f'{homeDir}.local/bin/NordIndicator.py'):
-        os.remove(f'{homeDir}.local/bin/NordIndicator.py')
+    @staticmethod
+    def safeDelete(file):
+        if os.path.isfile(file):
+            os.remove(file)
 
-    # Delete app icons
-    iconDir = f'{homeDir}.local/share/icons/'
 
-    if os.path.isfile(f'{iconDir}vpn_off.png'):
-        os.remove(f'{iconDir}vpn_off.png')
+    def install(self):
+        # Script
+        self.safeCopy(self.srcScript, self.dstBinDir)
 
-    if os.path.isfile(f'{iconDir}vpn_on.png'):
-        os.remove(f'{iconDir}vpn_on.png')
+        # Icons
+        for icon in self.icons:
+            self.safeCopy(f'{self.srcIconDir}/{icon}', self.dstIconDir)
 
-    if os.path.isfile(f'{iconDir}vpn_error.png'):
-        os.remove(f'{iconDir}vpn_error.png')
+        # Desktop file
+        self.generateDesktopFile()
 
-    # Delete desktop file
-    if os.path.isfile(f'{homeDir}.config/autostart/NordIndicator.desktop'):
-        os.remove(f'{homeDir}.config/autostart/NordIndicator.desktop')
+        # Autostart
+        self.safeCopy(self.dstDesktopFile, self.dstAutostartDir)
 
-    if os.path.isfile(f'{homeDir}/.local/share/applications/NordIndicator.desktop'):
-        os.remove(f'{homeDir}/.local/share/applications/NordIndicator.desktop')
+
+    def uninstall(self):
+        # Script
+        self.safeDelete(f'{self.dstBinDir}/{__file__}')
+
+        # Icons
+        for icon in self.icons:
+            self.safeDelete(f'{self.dstIconDir}/{icon}')
+
+        # Desktop file
+        self.safeDelete(self.dstDesktopFile)
+
+        # Autostart
+        self.safeDelete(f'{self.dstAutostartDir}/{self.appName}.desktop')
+
+
+    def generateDesktopFile(self):
+        contents = "[Desktop Entry]\n" \
+                   "Encoding=UTF-8\n" \
+                   "Version=1.0\n" \
+                   "Type=Application\n" \
+                   "Terminal=false\n" \
+                   f"Exec=sh -c 'python3 $HOME/.local/bin/{__file__}'\n" \
+                   "Name=NordVPN indicator\n" \
+                   "Icon=vpn_on\n"
+
+        self.safeDelete(self.dstDesktopFile)
+
+        if not os.path.isdir(self.dstAppDir):
+            os.makedirs(self.dstAppDir)
+
+        with open(self.dstDesktopFile, 'w') as fil:
+            fil.write(contents)
+
 
 
 if __name__ == "__main__":
@@ -222,10 +248,12 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
 
         if 'install' in sys.argv:
-            install()
+            handler = InstallationHandler()
+            handler.install()
 
         elif 'uninstall' in sys.argv:
-            uninstall()
+            handler = InstallationHandler()
+            handler.uninstall()
 
         else:
             print('Usage: python3 NordIndicator.py [install/uninstall]')
