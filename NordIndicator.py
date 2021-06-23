@@ -16,7 +16,7 @@ import sys
 import getpass
 
 
-class VPNstate:
+class NordVPN:
 
     def __init__(self):
         self.status = 'unknown'
@@ -27,6 +27,18 @@ class VPNstate:
         self.tech = 'unknown'
 
         self.update()
+
+
+    def fastConnect(self, _):
+        subprocess.run(['nordvpn', 'c'])
+
+
+    def switzerlandConnect(self, _):
+        subprocess.run(['nordvpn', 'c', 'ch'])
+
+
+    def disconnect(self, _):
+        subprocess.run(['nordvpn', 'd'])
 
 
     def update(self):
@@ -66,7 +78,7 @@ class VPNindicator:
 
     def __init__(self):
 
-        self.vpnData = VPNstate()
+        self.vpn = NordVPN()
         self.status = 'Disconnected'
         self.indicator = appindicator.Indicator.new(self.APPINDICATOR_ID, self.off_icon, appindicator.IndicatorCategory.SYSTEM_SERVICES)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
@@ -83,33 +95,33 @@ class VPNindicator:
     def build_menu(self):
         menu = gtk.Menu()
 
-        item_status = gtk.MenuItem(f'Status: {self.vpnData.status}')
+        item_status = gtk.MenuItem(f'Status: {self.vpn.status}')
         menu.append(item_status)
 
-        if self.vpnData.status == 'Connected':
-            item_server = gtk.MenuItem(f'Server: {self.vpnData.server}')
+        if self.vpn.status == 'Connected':
+            item_server = gtk.MenuItem(f'Server: {self.vpn.server}')
             menu.append(item_server)
 
-            item_country = gtk.MenuItem(f'Location: {self.vpnData.country}/{self.vpnData.city}')
+            item_country = gtk.MenuItem(f'Location: {self.vpn.country}/{self.vpn.city}')
             menu.append(item_country)
 
-            item_ip = gtk.MenuItem(f'IP: {self.vpnData.ip}')
+            item_ip = gtk.MenuItem(f'IP: {self.vpn.ip}')
             menu.append(item_ip)
 
-            item_tech = gtk.MenuItem(f'Tech: {self.vpnData.tech}')
+            item_tech = gtk.MenuItem(f'Tech: {self.vpn.tech}')
             menu.append(item_tech)
 
             item_disconnect = gtk.MenuItem('Disconnect')
-            item_disconnect.connect('activate', self.disconnect)
+            item_disconnect.connect('activate', self.vpn.disconnect)
             menu.append(item_disconnect)
 
-        elif self.vpnData.status == 'Disconnected':
+        elif self.vpn.status == 'Disconnected':
             item_fastconnect = gtk.MenuItem('Fast connect')
-            item_fastconnect.connect('activate', self.fastConnect)
+            item_fastconnect.connect('activate', self.vpn.fastConnect)
             menu.append(item_fastconnect)
 
             item_swconnect = gtk.MenuItem('Connect to Switzerland')
-            item_swconnect.connect('activate', self.switzerlandConnect)
+            item_swconnect.connect('activate', self.vpn.switzerlandConnect)
             menu.append(item_swconnect)
 
 
@@ -123,10 +135,10 @@ class VPNindicator:
 
     def update(self):
         while not self.stopFlag:
-            self.vpnData.update()
+            self.vpn.update()
 
-            if self.status != self.vpnData.status:
-                self.status = self.vpnData.status
+            if self.status != self.vpn.status:
+                self.status = self.vpn.status
 
                 if self.status == 'Connected':
                     self.indicator.set_icon(self.on_icon)
@@ -146,18 +158,6 @@ class VPNindicator:
         self.stopFlag = True
         self.updateThread.join()
         gtk.main_quit()
-
-
-    def fastConnect(self, _):
-        subprocess.run(['nordvpn', 'c'])
-
-
-    def switzerlandConnect(self, _):
-        subprocess.run(['nordvpn', 'c', 'ch'])
-
-
-    def disconnect(self, _):
-        subprocess.run(['nordvpn', 'd'])
 
 
 class InstallationHandler:
