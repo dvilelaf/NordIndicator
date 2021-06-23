@@ -167,7 +167,7 @@ class InstallationHandler:
         # Directories
         self.appName = __file__.replace('.py', '')
         self.homeDir = f'/home/{getpass.getuser()}'
-        self.srcDir = os.path.realpath(__file__).replace(__file__, '')
+        self.srcDir = os.path.realpath(__file__).replace(f'/{__file__}', '')
         self.srcIconDir = f'{self.srcDir}/icons'
         self.dstBinDir = f'{self.homeDir}/.local/bin'
         self.dstIconDir = f'{self.homeDir}/.local/share/icons'
