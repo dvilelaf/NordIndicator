@@ -181,15 +181,12 @@ def install():
     # Copy desktop file
     subprocess.run(['cp', f'{scriptDir}NordIndicator.desktop', f'{homeDir}/.local/share/applications/'])
 
-    # Install service
-    serviceDir = f'{homeDir}/.config/systemd/user/'
-    if not os.path.isdir(serviceDir):
-        os.makedirs(serviceDir)
+    # Autostart
+    autostartDir = f'{homeDir}.config/autostart/'
+    if not os.path.isdir(autostartDir):
+        os.makedirs(autostartDir)
 
-    subprocess.run(['cp', f'{scriptDir}NordIndicator.service', serviceDir])
-    subprocess.run(['systemctl', '--user', 'daemon-reload'])
-    subprocess.run(['systemctl', '--user', 'enable', 'NordIndicator.service'])
-    subprocess.run(['systemctl', '--user', 'start', 'NordIndicator.service'])
+    subprocess.run(['cp', f'{scriptDir}NordIndicator.desktop', autostartDir])
 
 
 def uninstall():
@@ -213,16 +210,11 @@ def uninstall():
         os.remove(f'{iconDir}vpn_error.png')
 
     # Delete desktop file
+    if os.path.isfile(f'{homeDir}.config/autostart/NordIndicator.desktop'):
+        os.remove(f'{homeDir}.config/autostart/NordIndicator.desktop')
+
     if os.path.isfile(f'{homeDir}/.local/share/applications/NordIndicator.desktop'):
         os.remove(f'{homeDir}/.local/share/applications/NordIndicator.desktop')
-
-    # Delete service
-    subprocess.run(['systemctl', '--user', 'stop', 'NordIndicator.service'])
-    subprocess.run(['systemctl', '--user', 'disable', 'NordIndicator.service'])
-
-    if os.path.isfile(f'{homeDir}/.config/systemd/user/NordIndicator.service'):
-        os.remove(f'{homeDir}/.config/systemd/user/NordIndicator.service')
-        subprocess.run(['systemctl', '--user', 'daemon-reload'])
 
 
 if __name__ == "__main__":

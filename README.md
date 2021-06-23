@@ -1,6 +1,6 @@
 # NordIndicator
 
-NordIndicator is a Python script that lets you connect, disconnect and check your NordVPN connection status from a simple GNU/Linux tray app indicator. It integrates with your system so you can launch it from your OS app menu.
+NordIndicator is a Python script that lets you connect, disconnect and check your NordVPN connection status from a simple GNU/Linux tray app indicator. It integrates with your system so it autostarts with it, and you can also launch it from your OS app menu.
 
 ## Features
 * Check your connection status, server, location, IP and technology
@@ -22,10 +22,6 @@ NordIndicator is a Python script that lets you connect, disconnect and check you
 
 ## Unistallation
 * ```python3 NordIndicator.py uninstall```
-
-## Systemd handling
-* ```systemctl --user start NordVPNindicator.service```
-* ```systemctl --user stop NordVPNindicator.service```
 
 ## Snapshots
 ![Imgur](https://i.imgur.com/M4CAejU.png)

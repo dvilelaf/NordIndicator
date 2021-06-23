@@ -1,9 +1,0 @@
-[Unit]
-Wants=graphical.target
-Description=NordVPN indicator
-
-[Service]
-ExecStart=/bin/sh -c '/usr/bin/python3 $HOME/.local/bin/NordIndicator.py'
-
-[Install]
-WantedBy=default.target
