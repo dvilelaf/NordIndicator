@@ -149,15 +149,15 @@ class VPNindicator:
 
 
     def fastConnect(self, _):
-        subprocess.run(['nordvpn', 'c'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(['nordvpn', 'c'])
 
 
     def switzerlandConnect(self, _):
-        subprocess.run(['nordvpn', 'c', 'ch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(['nordvpn', 'c', 'ch'])
 
 
     def disconnect(self, _):
-        subprocess.run(['nordvpn', 'd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(['nordvpn', 'd'])
 
 
 class InstallationHandler:
@@ -240,7 +240,6 @@ class InstallationHandler:
 
         with open(self.dstDesktopFile, 'w') as fil:
             fil.write(contents)
-
 
 
 if __name__ == "__main__":
