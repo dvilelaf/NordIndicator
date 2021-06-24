@@ -74,9 +74,9 @@ class NordVPN:
 class VPNindicator:
 
     APPINDICATOR_ID = 'nordvpnindicator'
-    on_icon = f'/home/{getpass.getuser()}/.local/share/icons/vpn_on.png'
-    off_icon = f'/home/{getpass.getuser()}/.local/share/icons/vpn_off.png'
-    error_icon = f'/home/{getpass.getuser()}/.local/share/icons/vpn_error.png'
+    on_icon = f'/home/{getpass.getuser()}/.local/share/icons/vpn_on.svg'
+    off_icon = f'/home/{getpass.getuser()}/.local/share/icons/vpn_off.svg'
+    error_icon = f'/home/{getpass.getuser()}/.local/share/icons/vpn_error.svg'
 
     def __init__(self):
 
@@ -178,7 +178,7 @@ class InstallationHandler:
 
         # Files
         self.srcScript = f'{self.srcDir}/{self.appName}.py'
-        self.icons = [f for f in os.listdir(self.srcIconDir) if f.endswith('.png')]
+        self.icons = [f for f in os.listdir(self.srcIconDir) if f.endswith('.svg')]
         self.dstDesktopFile = f'{self.dstAppDir}/{self.appName}.desktop'
 
 
