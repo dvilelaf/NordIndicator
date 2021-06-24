@@ -16,6 +16,30 @@ import time
 import threading
 import sys
 import getpass
+import requests
+import uuid
+
+
+def checkInternetConnection():
+    try:
+        requests.get('https://www.google.com/')
+    except:
+        return False
+    else:
+        return True
+
+
+def checkPackage(package):
+    result = subprocess.run(['which', package],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+
+    stdout = result.stdout.decode("utf-8")
+
+    if stdout:
+        return True
+    else:
+        return False
 
 
 class NordVPN:
@@ -166,20 +190,25 @@ class InstallationHandler:
 
     def __init__(self):
 
+        # Script info
+        self.scriptName = (__file__.split('/')[-1] if '/' in __file__ else __file__)
+        self.appName = self.scriptName.replace('.py', '')
+
         # Directories
-        self.appName = (__file__.split('/')[-1] if '/' in __file__ else __file__).replace('.py', '')
+        self.scriptDir = os.path.realpath(__file__).replace(f'/{self.scriptName}', '')
+        self.scriptPath = f'{self.scriptDir}/{self.scriptName}'
         self.homeDir = f'/home/{getpass.getuser()}'
-        self.srcDir = os.path.realpath(__file__).replace(f'/{self.appName}.py', '')
-        self.srcIconDir = f'{self.srcDir}/icons'
+
+        self.srcIconDir = f'{self.scriptDir}/icons'
         self.dstBinDir = f'{self.homeDir}/.local/bin'
         self.dstIconDir = f'{self.homeDir}/.local/share/icons'
         self.dstAppDir = f'{self.homeDir}/.local/share/applications'
         self.dstAutostartDir = f'{self.homeDir}/.config/autostart'
 
         # Files
-        self.srcScript = f'{self.srcDir}/{self.appName}.py'
-        self.icons = [f for f in os.listdir(self.srcIconDir) if f.endswith('.svg')]
         self.dstDesktopFile = f'{self.dstAppDir}/{self.appName}.desktop'
+        self.checkIcons()
+        self.icons = [f for f in os.listdir(self.srcIconDir) if f.endswith('.svg')]
 
 
     @staticmethod
@@ -197,7 +226,7 @@ class InstallationHandler:
 
     def install(self):
         # Script
-        self.safeCopy(self.srcScript, self.dstBinDir)
+        self.safeCopy(self.scriptPath, self.dstBinDir)
 
         # Icons
         for icon in self.icons:
@@ -210,12 +239,12 @@ class InstallationHandler:
         self.safeCopy(self.dstDesktopFile, self.dstAutostartDir)
 
         # Launch
-        subprocess.Popen(['python3', f'{self.dstBinDir}/{self.appName}.py'])
+        subprocess.Popen(['python3', f'{self.dstBinDir}/{self.scriptName}'])
 
 
     def uninstall(self):
         # Script
-        self.safeDelete(f'{self.dstBinDir}/{self.appName}.py')
+        self.safeDelete(f'{self.dstBinDir}/{self.scriptName}')
 
         # Icons
         for icon in self.icons:
@@ -250,7 +279,7 @@ class InstallationHandler:
                    "Version=1.0\n" \
                    "Type=Application\n" \
                    "Terminal=false\n" \
-                   f"Exec=sh -c 'python3 $HOME/.local/bin/{self.appName}.py'\n" \
+                   f"Exec=sh -c 'python3 $HOME/.local/bin/{self.scriptName}'\n" \
                    "Name=NordVPN indicator\n" \
                    "Icon=vpn_on\n"
 
@@ -263,20 +292,68 @@ class InstallationHandler:
             fil.write(contents)
 
 
+    def upgrade(self):
+
+        if not checkInternetConnection():
+            print('You are not connected to the Internet! Please connect in order to upgrade.')
+            return
+
+        # A repo is available
+        if os.path.isdir(f'{self.scriptDir}/.git'):
+
+            if not checkPackage('git'):
+                print('The git package is not installed. please install it in order to upgrade.')
+                return
+
+            # Upgrade
+            subprocess.run(['git', 'pull'])
+            subprocess.run(['python3', self.scriptPath, 'uninstall'])
+            subprocess.run(['python3', self.scriptPath, 'install'])
+
+        # No repo available, clone
+        else:
+            cloneDir = f'/tmp/{self.appName}/{uuid.uuid4().hex}' # Ensure unique name
+            subprocess.run(['git', 'clone', 'https://github.com/derkomai/NordIndicator', cloneDir])
+
+            # Upgrade
+            cloneScriptPath = f'{cloneDir}/{self.scriptName}'
+            subprocess.run(['python3', cloneScriptPath, 'uninstall'])
+            subprocess.run(['python3', cloneScriptPath, 'install'])
+
+
+    def checkIcons(self):
+
+        if not os.path.isdir(self.srcIconDir) or \
+           len([f for f in os.listdir(self.srcIconDir) if f.endswith('.svg')]) < 3: # We need at least 3 icons
+
+            if not checkInternetConnection():
+                print("Icons were not found and, since you are not connected to the Internet, I couldn't download them. They won't be available.")
+                return
+
+            # Download icons by cloning the repo
+            else:
+                cloneDir = f'/tmp/{self.appName}/{uuid.uuid4().hex}' # Ensure unique name
+                subprocess.run(['git', 'clone', 'https://github.com/derkomai/NordIndicator', cloneDir])
+                self.srcIconDir = f'{cloneDir}/icons'
+
+
+
 if __name__ == "__main__":
 
     if len(sys.argv) > 1:
+        handler = InstallationHandler()
 
         if 'install' in sys.argv:
-            handler = InstallationHandler()
             handler.install()
 
         elif 'uninstall' in sys.argv:
-            handler = InstallationHandler()
             handler.uninstall()
 
+        elif 'upgrade' in sys.argv:
+            handler.upgrade()
+
         else:
-            print('Usage: python3 NordIndicator.py [install/uninstall]')
+            print('Usage: python3 NordIndicator.py [install/uninstall/upgrade]')
 
     else:
         signal.signal(signal.SIGINT, signal.SIG_DFL)
