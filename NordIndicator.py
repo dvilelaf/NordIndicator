@@ -1,3 +1,6 @@
+import os
+os.environ['NO_AT_BRIDGE'] = '1' # Ignore dbind-WARNING
+
 from gi import require_version
 require_version('Gtk', '3.0')
 require_version('AppIndicator3', '0.1')
@@ -11,7 +14,6 @@ import signal
 import subprocess
 import time
 import threading
-import os
 import sys
 import getpass
 
