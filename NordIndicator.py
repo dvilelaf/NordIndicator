@@ -209,6 +209,9 @@ class InstallationHandler:
         # Autostart
         self.safeCopy(self.dstDesktopFile, self.dstAutostartDir)
 
+        # Launch
+        subprocess.Popen(['python3', f'{self.dstBinDir}/{self.appName}.py'])
+
 
     def uninstall(self):
         # Script
@@ -223,6 +226,22 @@ class InstallationHandler:
 
         # Autostart
         self.safeDelete(f'{self.dstAutostartDir}/{self.appName}.desktop')
+
+        # End process
+        self.killProcessByTag(self.appName)
+
+
+    def killProcessByTag(self, tag):
+        result = subprocess.run(['ps', 'aux'], stdout=subprocess.PIPE)
+        processes = result.stdout.decode('utf-8').split('\n')
+        thispid = os.getpid()
+
+        for p in processes:
+            if tag in p:
+                fields = [i for i in p.split(' ') if i]
+                pid = int(fields[1])
+                if pid != thispid:
+                    os.kill(pid, 9)
 
 
     def generateDesktopFile(self):
