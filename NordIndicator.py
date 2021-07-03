@@ -245,7 +245,7 @@ class InstallationHandler:
 
         # Launch
         subprocess.Popen(['python3', f'{self.dstBinDir}/{self.scriptName}'],
-                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
     def uninstall(self):
