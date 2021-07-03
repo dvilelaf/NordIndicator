@@ -17,9 +17,11 @@ NordIndicator is a Python script that lets you connect, disconnect and check you
 * The installation is made at user-level, so everything happens within your  home directory and no sudo permissions are needed.
 
 ## Installation
+* NordIndicator will be launched just after installation. It will also auto-start on system boot.
 * ```python3 NordIndicator.py install```
 
 ## Uninstallation
+* NordIndicator running processes will be killed before uninstallation.
 * ```python3 NordIndicator.py uninstall```
 
 ## Upgrade
