@@ -276,10 +276,7 @@ class InstallationHandler:
             return
 
         if self.installed:
-            # cmd = 'curl https://raw.githubusercontent.com/derkomai/NordIndicator/main/NordIndicator.py --output' + self.dstScriptPath
-            subprocess.Popen(['nohup', 'curl', '-s', 'https://raw.githubusercontent.com/derkomai/NordIndicator/main/NordIndicator.py', '--output', self.dstScriptPath],
-                           preexec_fn=os.setsid, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            # os.system(cmd)
+            subprocess.run(['curl', '-s', 'https://raw.githubusercontent.com/derkomai/NordIndicator/main/NordIndicator.py', '--output', self.dstScriptPath])
             print(f'{self.appName} has been upgraded to the latest version.')
 
         else:
