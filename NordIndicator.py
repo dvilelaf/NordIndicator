@@ -278,7 +278,7 @@ class InstallationHandler:
 
         if self.installed:
             subprocess.run(['curl', '-s', 'https://raw.githubusercontent.com/derkomai/NordIndicator/main/NordIndicator.py', '--output', self.dstScriptPath])
-            print(f'{self.appName} has been upgraded to the latest version.')
+            print(f'{self.appName} has been upgraded to the latest version. Restart it to use the new version.')
 
         else:
             print(f'{self.appName} is not installed.\nWould you like to upgrade this local version of the script?')
@@ -392,10 +392,6 @@ if __name__ == "__main__":
 
     installation = InstallationHandler()
 
-    # Autoupgrade on launch
-    if installation.calledFromInstalledScript:
-        installation.upgrade()
-
     # Process args
     if len(sys.argv) == 2:
 
@@ -411,9 +407,14 @@ if __name__ == "__main__":
             installation.upgrade()
 
         else:
-            print('Usage: python3 NordIndicator.py [install/uninstall]')
+            print('Usage: python3 NordIndicator.py [install/uninstall/upgrade]')
 
     # Run
     else:
+
+        # Autoupgrade on launch
+        if installation.calledFromInstalledScript:
+            installation.upgrade()
+
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         VPNindicator()
