@@ -392,8 +392,8 @@ if __name__ == "__main__":
     installation = InstallationHandler()
 
     # Autoupgrade on launch
-    # if installation.calledFromInstalledScript:
-    #     installation.upgrade()
+    if installation.calledFromInstalledScript:
+        installation.upgrade()
 
     # Process args
     if len(sys.argv) == 2:
