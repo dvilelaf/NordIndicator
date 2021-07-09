@@ -17,6 +17,7 @@ import threading
 import sys
 import getpass
 import requests
+import datetime
 from xml.dom import minidom
 
 
@@ -51,24 +52,105 @@ class NordVPN:
         self.city = 'unknown'
         self.ip = 'unknown'
         self.tech = 'unknown'
+        self.startTime = 'unknown'
+
+        self.firewall = 'unknown'
+        self.killswitch = 'unknown'
+        self.cybersec = 'unknown'
+        self.autoconnect = 'unknown'
+        self.dns = 'unknown'
+
+        self.changed = False
 
         self.update()
 
 
     def fastConnect(self, _):
         subprocess.run(['nordvpn', 'c'])
+        self.changed = True
 
 
     def switzerlandConnect(self, _):
-        subprocess.run(['nordvpn', 'c', 'ch'])
+        subprocess.run(['nordvpn', 'c', 'Switzerland'])
+        self.changed = True
+
+
+    def usConnect(self, _):
+        subprocess.run(['nordvpn', 'c', 'United_States'])
+        self.changed = True
+
+
+    def p2pConnect(self, _):
+        subprocess.run(['nordvpn', 'c', 'p2p'])
+        self.changed = True
 
 
     def disconnect(self, _):
         subprocess.run(['nordvpn', 'd'])
+        self.startTime = 'Disconnected'
+        self.changed = True
+
+
+    def switchTech(self, _):
+        reconnect = False
+        if self.status == 'Connected':
+            subprocess.run(['nordvpn', 'd'])
+            reconnect = True
+
+        if self.tech == 'OpenVPN':
+            subprocess.run(['nordvpn', 'set', 'technology', 'NordLynx'])
+        else:
+            subprocess.run(['nordvpn', 'set', 'technology', 'OpenVPN'])
+
+        if reconnect:
+            subprocess.run(['nordvpn', 'c'])
+
+        self.changed = True
+
+
+    def switchAutoconnect(self, _):
+        if self.autoconnect == 'enabled':
+            subprocess.run(['nordvpn', 'set', 'autoconnect', 'disable'])
+        else:
+            subprocess.run(['nordvpn', 'set', 'autoconnect', 'enable'])
+        self.changed = True
+
+
+    def switchFirewall(self, _):
+        if self.firewall == 'enabled':
+            subprocess.run(['nordvpn', 'set', 'firewall', 'disable'])
+        else:
+            subprocess.run(['nordvpn', 'set', 'firewall', 'enable'])
+        self.changed = True
+
+
+    def switchKillswitch(self, _):
+        if self.killswitch == 'enabled':
+            subprocess.run(['nordvpn', 'set', 'killswitch', 'disable'])
+        else:
+            subprocess.run(['nordvpn', 'set', 'killswitch', 'enable'])
+        self.changed = True
+
+
+    def switchCybersec(self, _):
+        if self.cybersec == 'enabled':
+            subprocess.run(['nordvpn', 'set', 'cybersec', 'disable'])
+        else:
+            subprocess.run(['nordvpn', 'set', 'cybersec', 'enable'])
+        self.changed = True
+
+
+    def switchDNS(self, _):
+        if self.dns == 'disabled':
+            subprocess.run(['nordvpn', 'set', 'dns', '1.1.1.1'])
+        else:
+            subprocess.run(['nordvpn', 'set', 'dns', 'disable'])
+        self.changed = True
 
 
     def update(self):
         try:
+            # Status
             result = subprocess.run(['nordvpn', 'status'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout = result.stdout.decode('utf-8').replace('\r-\r  \r\r-\r  \r', '')
             data = stdout.split('\n')
@@ -80,19 +162,54 @@ class NordVPN:
                 self.country = data[2].split(': ')[1]
                 self.city = data[3].split(': ')[1]
                 self.ip = data[4].split(': ')[1]
-                self.tech = data[5].split(': ')[1]
+                uptime = data[8].split(': ')[1]
+                self.startTime = self.startTimeFromUptime(uptime)
             else:
                 self.server = ''
                 self.country = ''
                 self.city = ''
                 self.ip = ''
-                self.tech = ''
-        except:
+
+            # Settings
+            result = subprocess.run(['nordvpn', 'settings'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout = result.stdout.decode('utf-8').replace('\r-\r  \r\r-\r  \r', '')
+            data = stdout.split('\n')
+
+            for field in data:
+                if ':' not in field:
+                    continue
+
+                fieldName = field.split(': ')[0].lower()
+                value = field.split(':')[1].strip()
+
+                if 'firewall' in fieldName:
+                    self.firewall = value
+                elif 'kill switch' in fieldName:
+                    self.killswitch = value
+                elif 'cybersec' in fieldName:
+                    self.cybersec = value
+                elif 'auto-connect' in fieldName:
+                    self.autoconnect = value
+                elif 'dns' in fieldName:
+                    self.dns = value
+                elif 'technology' in fieldName:
+                    self.tech = value
+
+        except Exception as e:
+            print(e)
             self.status = 'Error'
 
 
     def print(self):
         print(f'Status: {self.status}\nServer: {self.server}\nCountry: {self.country}\nCity: {self.city}\nIP: {self.ip}\nTech: {self.tech}')
+
+
+    def startTimeFromUptime(self, uptime):
+        timeNumbers = [int(i) for i in uptime.split(' ')[::2]] # Get time fields values
+        timeNumbers = [0] * (4 - len(timeNumbers)) + timeNumbers # Fill missing time fields with 0
+        startTime = datetime.datetime.now() - datetime.timedelta(days=timeNumbers[0], hours=timeNumbers[1], minutes=timeNumbers[2], seconds=timeNumbers[3])
+        startTimeStr = startTime.strftime("%Y-%m-%d %H:%M:%S")
+        return startTimeStr
 
 
 class VPNindicator:
@@ -125,6 +242,12 @@ class VPNindicator:
         menu.append(item_status)
 
         if self.vpn.status == 'Connected':
+            item_disconnect = gtk.MenuItem('Disconnect')
+            item_disconnect.connect('activate', self.vpn.disconnect)
+            menu.append(item_disconnect)
+
+            menu.append(gtk.SeparatorMenuItem())
+
             item_server = gtk.MenuItem(f'Server: {self.vpn.server}')
             menu.append(item_server)
 
@@ -134,12 +257,10 @@ class VPNindicator:
             item_ip = gtk.MenuItem(f'IP: {self.vpn.ip}')
             menu.append(item_ip)
 
-            item_tech = gtk.MenuItem(f'Tech: {self.vpn.tech}')
-            menu.append(item_tech)
+            item_uptime = gtk.MenuItem(f'Connected since: {self.vpn.startTime}')
+            menu.append(item_uptime)
 
-            item_disconnect = gtk.MenuItem('Disconnect')
-            item_disconnect.connect('activate', self.vpn.disconnect)
-            menu.append(item_disconnect)
+            menu.append(gtk.SeparatorMenuItem())
 
         elif self.vpn.status == 'Disconnected':
             item_fastconnect = gtk.MenuItem('Fast connect')
@@ -150,6 +271,42 @@ class VPNindicator:
             item_swconnect.connect('activate', self.vpn.switzerlandConnect)
             menu.append(item_swconnect)
 
+            item_usconnect = gtk.MenuItem('Connect to United States')
+            item_usconnect.connect('activate', self.vpn.usConnect)
+            menu.append(item_usconnect)
+
+            item_p2pconnect = gtk.MenuItem('Connect to P2P')
+            item_p2pconnect.connect('activate', self.vpn.p2pConnect)
+            menu.append(item_p2pconnect)
+
+            menu.append(gtk.SeparatorMenuItem())
+
+
+        item_tech = gtk.MenuItem(f'Tech: {self.vpn.tech}')
+        item_tech.connect('activate', self.vpn.switchTech)
+        menu.append(item_tech)
+
+        item_firewall = gtk.MenuItem(f'Firewall: {self.vpn.firewall}')
+        item_firewall.connect('activate', self.vpn.switchFirewall)
+        menu.append(item_firewall)
+
+        item_killswitch = gtk.MenuItem(f'Killswitch: {self.vpn.killswitch}')
+        item_killswitch.connect('activate', self.vpn.switchKillswitch)
+        menu.append(item_killswitch)
+
+        item_cybersec = gtk.MenuItem(f'Cybersec: {self.vpn.cybersec}')
+        item_cybersec.connect('activate', self.vpn.switchCybersec)
+        menu.append(item_cybersec)
+
+        item_autoconnect = gtk.MenuItem(f'Autoconnect: {self.vpn.autoconnect}')
+        item_autoconnect.connect('activate', self.vpn.switchAutoconnect)
+        menu.append(item_autoconnect)
+
+        item_dns = gtk.MenuItem(f'DNS: {self.vpn.dns}')
+        item_dns.connect('activate', self.vpn.switchDNS)
+        menu.append(item_dns)
+
+        menu.append(gtk.SeparatorMenuItem())
 
         item_quit = gtk.MenuItem('Quit NordIndicator')
         item_quit.connect('activate', self.quit)
@@ -175,7 +332,9 @@ class VPNindicator:
                 else:
                     self.indicator.set_icon(self.error_icon)
 
+            if self.vpn.changed:
                 self.indicator.set_menu(self.build_menu())
+                self.vpn.changed = False
 
             time.sleep(3)
 
