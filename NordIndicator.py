@@ -296,7 +296,7 @@ class VPNindicator:
             menu.append(gtk.SeparatorMenuItem())
 
             if self.vpn.country != self.vpn.country1 :
-                item_switchCountry1 = gtk.MenuItem('Reconnect to'+self.vpn.country1)
+                item_switchCountry1 = gtk.MenuItem('Reconnect to ' + self.vpn.country1)
                 item_switchCountry1.connect('activate', self.vpn.switchToCountry1)
                 menu.append(item_switchCountry1)
 
