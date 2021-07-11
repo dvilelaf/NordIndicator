@@ -186,20 +186,25 @@ class NordVPN:
             stdout = result.stdout.decode('utf-8').replace('\r-\r  \r\r-\r  \r', '')
             data = stdout.split('\n')
 
-            self.status = data[0].split(': ')[1]
+            for field in data:
+                if ':' not in field:
+                    continue
 
-            if self.status == 'Connected':
-                self.server = data[1].split(': ')[1]
-                self.country = data[2].split(': ')[1]
-                self.city = data[3].split(': ')[1]
-                self.ip = data[4].split(': ')[1]
-                uptime = data[8].split(': ')[1]
-                self.startTime = self.startTimeFromUptime(uptime)
-            else:
-                self.server = ''
-                self.country = ''
-                self.city = ''
-                self.ip = ''
+                fieldName = field.split(': ')[0].lower()
+                value = field.split(':')[1].strip()
+
+                if 'status' in fieldName:
+                    self.status = value
+                elif 'current server' in fieldName:
+                    self.server = value
+                elif 'country' in fieldName:
+                    self.country = value
+                elif 'city' in fieldName:
+                    self.city = value
+                elif 'server ip' in fieldName:
+                    self.ip = value
+                elif 'uptime' in fieldName:
+                    self.startTime = self.startTimeFromUptime(value)
 
             # Settings
             result = subprocess.run(['nordvpn', 'settings'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
