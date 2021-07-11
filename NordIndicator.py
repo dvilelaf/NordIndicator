@@ -22,6 +22,7 @@ import getpass
 import requests
 import datetime
 from xml.dom import minidom
+import shutil
 
 
 def checkInternetConnection():
@@ -433,10 +434,8 @@ class InstallationHandler:
 
     @staticmethod
     def safeDeleteFolder(folder):
-        if os.path.exists(folder):
-            for file in os.listdir(folder):
-                os.remove(file)
-            os.rmdir(folder)
+        if os.path.isdir(folder):
+            shutil.rmtree(folder)
 
 
     def install(self):
