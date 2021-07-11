@@ -1,6 +1,9 @@
 import os
 os.environ['NO_AT_BRIDGE'] = '1' # Ignore dbind-WARNING
 
+
+import importlib
+
 from gi import require_version
 require_version('Gtk', '3.0')
 require_version('AppIndicator3', '0.1')
@@ -60,6 +63,23 @@ class NordVPN:
         self.autoconnect = 'unknown'
         self.dns = 'unknown'
 
+        #Fetching config file
+        try :
+            self.homeDir = os.environ['HOME']
+            loader = importlib.machinery.SourceFileLoader('config', f'{self.homeDir}/.config/NordIndicator/config.py')
+            configuration = loader.load_module('config')
+        
+            self.country1 = configuration.country1
+            self.country2 = configuration.country2
+            print("Config sucessfully loaded")
+        
+        except :
+            self.country1 = "Switzerland"
+            self.country2 = "United_States"
+            print("an error as happened while importing the config file, setting default values")
+            
+                
+
         self.changed = False
 
         self.update()
@@ -70,15 +90,15 @@ class NordVPN:
         self.changed = True
 
 
-    def switzerlandConnect(self, _):
-        subprocess.run(['nordvpn', 'c', 'Switzerland'])
+    def country1Connect(self, _):
+        subprocess.run(['nordvpn', 'c', self.country1])
         self.changed = True
 
 
-    def usConnect(self, _):
-        subprocess.run(['nordvpn', 'c', 'United_States'])
+    def country2Connect(self, _):
+        subprocess.run(['nordvpn', 'c', self.country2])
         self.changed = True
-
+        
 
     def p2pConnect(self, _):
         subprocess.run(['nordvpn', 'c', 'p2p'])
@@ -91,10 +111,10 @@ class NordVPN:
         self.changed = True
 
 
-    def switchToSwitzerland(self, _):
+    def switchToCountry1(self, _):
         if self.status == 'Connected':
             self.disconnect(None)
-            self.switzerlandConnect(None)
+            self.country1Connect(None)
 
 
     def switchToFastConnect(self, _):
@@ -276,10 +296,10 @@ class VPNindicator:
 
             menu.append(gtk.SeparatorMenuItem())
 
-            if self.vpn.country != 'Switzerland':
-                item_switchSwit = gtk.MenuItem('Reconnect to Switzerland')
-                item_switchSwit.connect('activate', self.vpn.switchToSwitzerland)
-                menu.append(item_switchSwit)
+            if self.vpn.country != self.vpn.country1 :
+                item_switchCountry1 = gtk.MenuItem('Reconnect to'+self.vpn.country1)
+                item_switchCountry1.connect('activate', self.vpn.switchToCountry1)
+                menu.append(item_switchCountry1)
 
             item_switchFast = gtk.MenuItem('Reconnect using fast connect')
             item_switchFast.connect('activate', self.vpn.switchToFastConnect)
@@ -293,13 +313,13 @@ class VPNindicator:
             item_fastconnect.connect('activate', self.vpn.fastConnect)
             menu.append(item_fastconnect)
 
-            item_swconnect = gtk.MenuItem('Connect to Switzerland')
-            item_swconnect.connect('activate', self.vpn.switzerlandConnect)
-            menu.append(item_swconnect)
+            item_country1_connect = gtk.MenuItem('Connect to '+self.vpn.country1)
+            item_country1_connect.connect('activate', self.vpn.country1Connect)
+            menu.append(item_country1_connect)
 
-            item_usconnect = gtk.MenuItem('Connect to United States')
-            item_usconnect.connect('activate', self.vpn.usConnect)
-            menu.append(item_usconnect)
+            item_country2_connect = gtk.MenuItem('Connect to '+self.vpn.country2)
+            item_country2_connect.connect('activate', self.vpn.country2Connect)
+            menu.append(item_country2_connect)
 
             item_p2pconnect = gtk.MenuItem('Connect to P2P')
             item_p2pconnect.connect('activate', self.vpn.p2pConnect)
@@ -385,6 +405,7 @@ class InstallationHandler:
 
         # Installation directories
         self.homeDir = f'/home/{getpass.getuser()}'
+        self.configDir = f'{self.homeDir}/.config/NordIndicator'
         self.dstBinDir = f'{self.homeDir}/.local/bin'
         self.dstScriptPath = f'{self.dstBinDir}/{self.scriptName}'
         self.dstIconDir = f'{self.homeDir}/.local/share/icons'
@@ -395,7 +416,7 @@ class InstallationHandler:
         self.installed = os.path.isfile(self.dstScriptPath)
         self.calledFromInstalledScript = self.scriptPath == self.dstScriptPath
         self.repoIsPresent = os.path.isdir(f'{self.scriptDir}/.git')
-
+        
         self.iconColors = { 'vpn_on': '#71c837', 'vpn_off': '#666666', 'vpn_error': '#ff5555'}
 
 
@@ -410,7 +431,13 @@ class InstallationHandler:
     def safeDelete(file):
         if os.path.isfile(file):
             os.remove(file)
-
+    
+    @staticmethod
+    def safeDeleteFolder(folder):
+        if os.path.exists(folder):
+            for file in os.listdir(folder):
+                os.remove(file)
+            os.rmdir(folder)
 
     def install(self):
 
@@ -433,7 +460,17 @@ class InstallationHandler:
         # Launch
         subprocess.Popen(['python3', f'{self.dstBinDir}/{self.scriptName}'],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        
+        # Config file
+        self.createConfFile()
+                
+    def createConfFile(self, extension='') :
+        
+        if not os.path.exists(self.configDir):
+            os.makedirs(self.configDir)
+        
+        with open(f'{self.configDir}/config.py{extension}', 'w') as createConf : 
+            createConf.write("#NordIndicator config File\n\n#You can choose which country to display for a quicker connection\n#Please be sure of the name and the availibility of the country or the connection will result in an error\n\ncountry1 = \"Switzerland\"\ncountry2 = \"United_States\"")
 
     def uninstall(self):
 
@@ -453,6 +490,9 @@ class InstallationHandler:
 
         # Autostart
         self.safeDelete(f'{self.dstAutostartDir}/{self.appName}.desktop')
+        
+        # Config file
+        self.safeDeleteFolder(self.configDir)
 
         # End process
         self.killProcessByTag(self.appName)
@@ -465,7 +505,8 @@ class InstallationHandler:
 
         if self.installed:
             subprocess.run(['curl', '-s', 'https://raw.githubusercontent.com/derkomai/NordIndicator/main/NordIndicator.py', '--output', self.dstScriptPath])
-            print(f'{self.appName} has been upgraded to the latest version. Restart it to use the new version.')
+            self.createConfFile('.new')
+            print(f'{self.appName} has been upgraded to the latest version. Restart it to use the new version.\nIf you are facing issues, try to replace {self.configDir}/config.py by {self.configDir}/config.py.new')
 
         else:
             print(f'{self.appName} is not installed.\nWould you like to upgrade this local version of the script?')
