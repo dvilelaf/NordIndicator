@@ -91,6 +91,18 @@ class NordVPN:
         self.changed = True
 
 
+    def switchToSwitzerland(self, _):
+        if self.status == 'Connected':
+            self.disconnect(None)
+            self.switzerlandConnect(None)
+
+
+    def switchToFastConnect(self, _):
+        if self.status == 'Connected':
+            self.disconnect(None)
+            self.fastConnect(None)
+
+
     def switchTech(self, _):
         reconnect = False
         if self.status == 'Connected':
@@ -243,6 +255,16 @@ class VPNindicator:
         menu.append(item_status)
 
         if self.vpn.status == 'Connected':
+
+            if self.vpn.country != 'Switzerland':
+                item_switchSwit = gtk.MenuItem('Reconnect to Switzerland')
+                item_switchSwit.connect('activate', self.vpn.switchToSwitzerland)
+                menu.append(item_switchSwit)
+
+            item_switchFast = gtk.MenuItem('Reconnect using fast connect')
+            item_switchFast.connect('activate', self.vpn.switchToFastConnect)
+            menu.append(item_switchFast)
+
             item_disconnect = gtk.MenuItem('Disconnect')
             item_disconnect.connect('activate', self.vpn.disconnect)
             menu.append(item_disconnect)
