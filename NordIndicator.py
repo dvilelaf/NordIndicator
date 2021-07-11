@@ -256,6 +256,26 @@ class VPNindicator:
 
         if self.vpn.status == 'Connected':
 
+            item_disconnect = gtk.MenuItem('Disconnect')
+            item_disconnect.connect('activate', self.vpn.disconnect)
+            menu.append(item_disconnect)
+
+            menu.append(gtk.SeparatorMenuItem())
+
+            item_country = gtk.MenuItem(f'Location: {self.vpn.country}/{self.vpn.city}')
+            menu.append(item_country)
+
+            item_server = gtk.MenuItem(f'Server: {self.vpn.server}')
+            menu.append(item_server)
+
+            item_ip = gtk.MenuItem(f'IP: {self.vpn.ip}')
+            menu.append(item_ip)
+
+            item_uptime = gtk.MenuItem(f'Connected since: {self.vpn.startTime}')
+            menu.append(item_uptime)
+
+            menu.append(gtk.SeparatorMenuItem())
+
             if self.vpn.country != 'Switzerland':
                 item_switchSwit = gtk.MenuItem('Reconnect to Switzerland')
                 item_switchSwit.connect('activate', self.vpn.switchToSwitzerland)
@@ -265,25 +285,8 @@ class VPNindicator:
             item_switchFast.connect('activate', self.vpn.switchToFastConnect)
             menu.append(item_switchFast)
 
-            item_disconnect = gtk.MenuItem('Disconnect')
-            item_disconnect.connect('activate', self.vpn.disconnect)
-            menu.append(item_disconnect)
-
             menu.append(gtk.SeparatorMenuItem())
 
-            item_server = gtk.MenuItem(f'Server: {self.vpn.server}')
-            menu.append(item_server)
-
-            item_country = gtk.MenuItem(f'Location: {self.vpn.country}/{self.vpn.city}')
-            menu.append(item_country)
-
-            item_ip = gtk.MenuItem(f'IP: {self.vpn.ip}')
-            menu.append(item_ip)
-
-            item_uptime = gtk.MenuItem(f'Connected since: {self.vpn.startTime}')
-            menu.append(item_uptime)
-
-            menu.append(gtk.SeparatorMenuItem())
 
         elif self.vpn.status == 'Disconnected':
             item_fastconnect = gtk.MenuItem('Fast connect')
