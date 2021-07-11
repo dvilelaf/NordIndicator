@@ -228,6 +228,7 @@ class VPNindicator:
         self.indicator.set_menu(self.build_menu())
 
         self.stopFlag = False
+        self.menuUpdateCountdown = 20
         self.updateThread = threading.Thread(target=self.update)
         self.updateThread.start()
 
@@ -332,10 +333,12 @@ class VPNindicator:
                 else:
                     self.indicator.set_icon(self.error_icon)
 
-            if self.vpn.changed:
+            if self.vpn.changed or self.menuUpdateCountdown <= 0:
                 self.indicator.set_menu(self.build_menu())
                 self.vpn.changed = False
+                self.menuUpdateCountdown = 20
 
+            self.menuUpdateCountdown -= 1
             time.sleep(3)
 
 
