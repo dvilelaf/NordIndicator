@@ -570,11 +570,12 @@ inkscape:export-xdpi="2049" inkscape:export-ydpi="2049"/></svg>"""
 
 if __name__ == "__main__":
 
-    if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] not in ['install', 'uninstall', 'upgrade']):
+    if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] not in ['install', 'uninstall', 'upgrade', '--skip-upgrade', '-su']):
         print('Usage: python3 NordIndicator.py [install/uninstall/upgrade]')
         sys.exit()
 
     installation = InstallationHandler()
+    autoUpgrade = True
 
     # Process args
     if len(sys.argv) == 2:
@@ -583,22 +584,24 @@ if __name__ == "__main__":
 
         if arg == 'install':
             installation.install()
+            sys.exit()
 
         elif arg == 'uninstall':
             installation.uninstall()
+            sys.exit()
 
         elif arg == 'upgrade':
             installation.upgrade()
+            sys.exit()
 
-        else:
-            print('Usage: python3 NordIndicator.py [install/uninstall/upgrade]')
+        elif (arg == '--skip-upgrade' or arg == '-su'):
+            print('Skipping auto-upgrade...')
+            autoUpgrade = False
+
+    # Autoupgrade on launch
+    if autoUpgrade and installation.calledFromInstalledScript:
+        installation.upgrade()
 
     # Run
-    else:
-
-        # Autoupgrade on launch
-        if installation.calledFromInstalledScript:
-            installation.upgrade()
-
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-        VPNindicator()
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    VPNindicator()
