@@ -68,17 +68,15 @@ class NordVPN:
             self.homeDir = os.environ['HOME']
             loader = importlib.machinery.SourceFileLoader('config', f'{self.homeDir}/.config/NordIndicator/config.py')
             configuration = loader.load_module('config')
-        
+
             self.country1 = configuration.country1
             self.country2 = configuration.country2
-            print("Config sucessfully loaded")
-        
+            print("Configuration sucessfully loaded.")
+
         except :
             self.country1 = "Switzerland"
             self.country2 = "United_States"
-            print("an error as happened while importing the config file, setting default values")
-            
-                
+            print("An error has happened while importing the config file. Setting default values.")
 
         self.changed = False
 
@@ -98,7 +96,7 @@ class NordVPN:
     def country2Connect(self, _):
         subprocess.run(['nordvpn', 'c', self.country2])
         self.changed = True
-        
+
 
     def p2pConnect(self, _):
         subprocess.run(['nordvpn', 'c', 'p2p'])
@@ -416,7 +414,7 @@ class InstallationHandler:
         self.installed = os.path.isfile(self.dstScriptPath)
         self.calledFromInstalledScript = self.scriptPath == self.dstScriptPath
         self.repoIsPresent = os.path.isdir(f'{self.scriptDir}/.git')
-        
+
         self.iconColors = { 'vpn_on': '#71c837', 'vpn_off': '#666666', 'vpn_error': '#ff5555'}
 
 
@@ -431,13 +429,15 @@ class InstallationHandler:
     def safeDelete(file):
         if os.path.isfile(file):
             os.remove(file)
-    
+
+
     @staticmethod
     def safeDeleteFolder(folder):
         if os.path.exists(folder):
             for file in os.listdir(folder):
                 os.remove(file)
             os.rmdir(folder)
+
 
     def install(self):
 
@@ -457,20 +457,24 @@ class InstallationHandler:
         # Autostart
         self.safeCopy(self.dstDesktopFilePath, self.dstAutostartDir)
 
+        # Config file
+        self.createConfFile()
+
         # Launch
         subprocess.Popen(['python3', f'{self.dstBinDir}/{self.scriptName}'],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        # Config file
-        self.createConfFile()
-                
-    def createConfFile(self, extension='') :
-        
+
+
+    def createConfFile(self, extension=''):
+
         if not os.path.exists(self.configDir):
             os.makedirs(self.configDir)
-        
-        with open(f'{self.configDir}/config.py{extension}', 'w') as createConf : 
-            createConf.write("#NordIndicator config File\n\n#You can choose which country to display for a quicker connection\n#Please be sure of the name and the availibility of the country or the connection will result in an error\n\ncountry1 = \"Switzerland\"\ncountry2 = \"United_States\"")
+
+        with open(f'{self.configDir}/config.py{extension}', 'w') as createConf :
+            createConf.write('# NordIndicator config File\n\n# You can choose which country to display for a quicker connection\n'
+                             '# Please be sure of the name and the availibility of the country or the connection will result in an error\n'
+                             '\ncountry1 = \"Switzerland\"\ncountry2 = \"United_States\"')
+
 
     def uninstall(self):
 
@@ -490,7 +494,7 @@ class InstallationHandler:
 
         # Autostart
         self.safeDelete(f'{self.dstAutostartDir}/{self.appName}.desktop')
-        
+
         # Config file
         self.safeDeleteFolder(self.configDir)
 
