@@ -417,6 +417,12 @@ class InstallationHandler:
         self.dstDesktopFilePath = f'{self.dstDesktopFileDir}/{self.appName}.desktop'
         self.dstAutostartDir = f'{self.homeDir}/.config/autostart'
 
+        # Alternative icon directory
+        if not os.path.isdir(self.dstIconDir):
+            altIconDir = f'{self.homeDir}/.icons'
+            if os.path.isdir(altIconDir):
+                self.dstIconDir = altIconDir
+
         self.installed = os.path.isfile(self.dstScriptPath)
         self.calledFromInstalledScript = self.scriptPath == self.dstScriptPath
         self.repoIsPresent = os.path.isdir(f'{self.scriptDir}/.git')
@@ -544,6 +550,10 @@ class InstallationHandler:
 
 
     def generateIcons(self):
+
+        if not os.path.isdir(self.dstIconDir):
+            os.makedirs(self.dstIconDir)
+
         svgData = """\
 <?xml version="1.0" encoding="UTF-8" standalone="no"?> <svg xmlns:dc="http://purl.org/dc/elements/1.1/"
 xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg=
