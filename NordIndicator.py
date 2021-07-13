@@ -181,6 +181,21 @@ class NordVPN:
 
     def update(self):
         try:
+
+            self.status = 'unknown'
+            self.server = 'unknown'
+            self.country = 'unknown'
+            self.city = 'unknown'
+            self.ip = 'unknown'
+            self.startTime = 'unknown'
+
+            self.firewall = 'unknown'
+            self.killswitch = 'unknown'
+            self.cybersec = 'unknown'
+            self.autoconnect = 'unknown'
+            self.dns = 'unknown'
+            self.tech = 'unknown'
+
             # Status
             result = subprocess.run(['nordvpn', 'status'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout = result.stdout.decode('utf-8').replace('\r-\r  \r\r-\r  \r', '')
