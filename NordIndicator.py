@@ -370,7 +370,7 @@ class VPNindicator:
         while not self.stopFlag:
             self.vpn.update()
 
-            if self.status != self.vpn.status:
+            if self.status != self.vpn.status or self.vpn.changed or self.menuUpdateCountdown <= 0:
                 self.status = self.vpn.status
 
                 if self.status == 'Connected':
@@ -382,7 +382,6 @@ class VPNindicator:
                 else:
                     self.indicator.set_icon(self.error_icon)
 
-            if self.vpn.changed or self.menuUpdateCountdown <= 0:
                 self.indicator.set_menu(self.build_menu())
                 self.vpn.changed = False
                 self.menuUpdateCountdown = 20
