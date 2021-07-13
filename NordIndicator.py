@@ -279,7 +279,6 @@ class VPNindicator:
         self.indicator.set_menu(self.build_menu())
 
         self.stopFlag = False
-        self.menuUpdateCountdown = 20
         self.updateThread = threading.Thread(target=self.update)
         self.updateThread.start()
 
@@ -385,7 +384,7 @@ class VPNindicator:
         while not self.stopFlag:
             self.vpn.update()
 
-            if self.status != self.vpn.status or self.vpn.changed or self.menuUpdateCountdown <= 0:
+            if self.status != self.vpn.status or self.vpn.changed:
                 self.status = self.vpn.status
 
                 if self.status == 'Connected':
@@ -399,9 +398,7 @@ class VPNindicator:
 
                 self.indicator.set_menu(self.build_menu())
                 self.vpn.changed = False
-                self.menuUpdateCountdown = 20
 
-            self.menuUpdateCountdown -= 1
             time.sleep(3)
 
 
