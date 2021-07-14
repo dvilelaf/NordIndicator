@@ -289,37 +289,37 @@ class VPNindicator:
     def build_menu(self):
         menu = gtk.Menu()
 
-        item_status = gtk.MenuItem(f'Status: {self.vpn.status}')
+        item_status = gtk.MenuItem(label = f'Status: {self.vpn.status}')
         menu.append(item_status)
 
         if self.vpn.status == 'Connected':
 
-            item_disconnect = gtk.MenuItem('Disconnect')
+            item_disconnect = gtk.MenuItem(label ='Disconnect')
             item_disconnect.connect('activate', self.vpn.disconnect)
             menu.append(item_disconnect)
 
             menu.append(gtk.SeparatorMenuItem())
 
-            item_country = gtk.MenuItem(f'Location: {self.vpn.country}/{self.vpn.city}')
+            item_country = gtk.MenuItem(label =f'Location: {self.vpn.country}/{self.vpn.city}')
             menu.append(item_country)
 
-            item_server = gtk.MenuItem(f'Server: {self.vpn.server}')
+            item_server = gtk.MenuItem(label =f'Server: {self.vpn.server}')
             menu.append(item_server)
 
-            item_ip = gtk.MenuItem(f'IP: {self.vpn.ip}')
+            item_ip = gtk.MenuItem(label =f'IP: {self.vpn.ip}')
             menu.append(item_ip)
 
-            item_uptime = gtk.MenuItem(f'Connected since: {self.vpn.startTime}')
+            item_uptime = gtk.MenuItem(label =f'Connected since: {self.vpn.startTime}')
             menu.append(item_uptime)
 
             menu.append(gtk.SeparatorMenuItem())
 
             if self.vpn.country != self.vpn.country1 :
-                item_switchCountry1 = gtk.MenuItem('Reconnect to ' + self.vpn.country1)
+                item_switchCountry1 = gtk.MenuItem(label ='Reconnect to ' + self.vpn.country1)
                 item_switchCountry1.connect('activate', self.vpn.switchToCountry1)
                 menu.append(item_switchCountry1)
 
-            item_switchFast = gtk.MenuItem('Reconnect using fast connect')
+            item_switchFast = gtk.MenuItem(label ='Reconnect using fast connect')
             item_switchFast.connect('activate', self.vpn.switchToFastConnect)
             menu.append(item_switchFast)
 
@@ -327,52 +327,52 @@ class VPNindicator:
 
 
         elif self.vpn.status == 'Disconnected':
-            item_fastconnect = gtk.MenuItem('Fast connect')
+            item_fastconnect = gtk.MenuItem(label ='Fast connect')
             item_fastconnect.connect('activate', self.vpn.fastConnect)
             menu.append(item_fastconnect)
 
-            item_country1_connect = gtk.MenuItem('Connect to '+self.vpn.country1)
+            item_country1_connect = gtk.MenuItem(label ='Connect to '+self.vpn.country1)
             item_country1_connect.connect('activate', self.vpn.country1Connect)
             menu.append(item_country1_connect)
 
-            item_country2_connect = gtk.MenuItem('Connect to '+self.vpn.country2)
+            item_country2_connect = gtk.MenuItem(label ='Connect to '+self.vpn.country2)
             item_country2_connect.connect('activate', self.vpn.country2Connect)
             menu.append(item_country2_connect)
 
-            item_p2pconnect = gtk.MenuItem('Connect to P2P')
+            item_p2pconnect = gtk.MenuItem(label ='Connect to P2P')
             item_p2pconnect.connect('activate', self.vpn.p2pConnect)
             menu.append(item_p2pconnect)
 
             menu.append(gtk.SeparatorMenuItem())
 
 
-        item_tech = gtk.MenuItem(f'Tech: {self.vpn.tech}')
+        item_tech = gtk.MenuItem(label =f'Tech: {self.vpn.tech}')
         item_tech.connect('activate', self.vpn.switchTech)
         menu.append(item_tech)
 
-        item_firewall = gtk.MenuItem(f'Firewall: {self.vpn.firewall}')
+        item_firewall = gtk.MenuItem(label =f'Firewall: {self.vpn.firewall}')
         item_firewall.connect('activate', self.vpn.switchFirewall)
         menu.append(item_firewall)
 
-        item_killswitch = gtk.MenuItem(f'Killswitch: {self.vpn.killswitch}')
+        item_killswitch = gtk.MenuItem(label =f'Killswitch: {self.vpn.killswitch}')
         item_killswitch.connect('activate', self.vpn.switchKillswitch)
         menu.append(item_killswitch)
 
-        item_cybersec = gtk.MenuItem(f'Cybersec: {self.vpn.cybersec}')
+        item_cybersec = gtk.MenuItem(label =f'Cybersec: {self.vpn.cybersec}')
         item_cybersec.connect('activate', self.vpn.switchCybersec)
         menu.append(item_cybersec)
 
-        item_autoconnect = gtk.MenuItem(f'Autoconnect: {self.vpn.autoconnect}')
+        item_autoconnect = gtk.MenuItem(label =f'Autoconnect: {self.vpn.autoconnect}')
         item_autoconnect.connect('activate', self.vpn.switchAutoconnect)
         menu.append(item_autoconnect)
 
-        item_dns = gtk.MenuItem(f'DNS: {self.vpn.dns}')
+        item_dns = gtk.MenuItem(label =f'DNS: {self.vpn.dns}')
         item_dns.connect('activate', self.vpn.switchDNS)
         menu.append(item_dns)
 
         menu.append(gtk.SeparatorMenuItem())
 
-        item_quit = gtk.MenuItem('Quit NordIndicator')
+        item_quit = gtk.MenuItem(label ='Quit NordIndicator')
         item_quit.connect('activate', self.quit)
         menu.append(item_quit)
 
@@ -388,13 +388,13 @@ class VPNindicator:
                 self.status = self.vpn.status
 
                 if self.status == 'Connected':
-                    self.indicator.set_icon(self.on_icon)
+                    self.indicator.set_icon_full(self.on_icon, "VPN Connected")
 
                 elif self.status == 'Disconnected':
-                    self.indicator.set_icon(self.off_icon)
+                    self.indicator.set_icon_full(self.off_icon, "VPN Disconnected")
 
                 else:
-                    self.indicator.set_icon(self.error_icon)
+                    self.indicator.set_icon_full(self.error_icon, "error")
 
                 self.indicator.set_menu(self.build_menu())
                 self.vpn.changed = False
