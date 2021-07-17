@@ -22,7 +22,7 @@ install () {
     cp "./NordIndicator.py" "$HOME""/.local/share/NordIndicator/"
     cp "./src/NordIndicator" "$HOME""/.local/bin/"
     cp "./src/Uninstall.sh" "$HOME""/.local/share/NordIndicator/"
-    sed "s/vpn_on/$HOME\/.local\/share\/NordIndicator\/vpn_on.svg" "./src/NordIndicator.desktop" > "$HOME/.local/share/applications/"
+    sed "s/vpn_on/$HOME\/.local\/share\/NordIndicator\/vpn_on.svg" "./src/NordIndicator.desktop" > "$HOME/.local/share/applications/NordIndicator.desktop"
     if [ -f "$HOME""/.config/NordIndicator/config.py" ]; then
         if [ "$1" = "-q" ];then
             echo "New config file saved as config.py.new"
