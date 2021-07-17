@@ -16,13 +16,13 @@ install () {
     mkdir -p "$HOME""/.config/NordIndicator"
     
     # Copying files
-    cp "./src/NordIndicator.desktop" "$HOME/.local/share/applications/"
     cp "./src/vpn_on.svg" "$HOME""/.local/share/NordIndicator/"
     cp "./src/vpn_off.svg" "$HOME""/.local/share/NordIndicator/"
     cp "./src/vpn_error.svg" "$HOME""/.local/share/NordIndicator/"
     cp "./NordIndicator.py" "$HOME""/.local/share/NordIndicator/"
     cp "./src/NordIndicator" "$HOME""/.local/bin/"
     cp "./src/Uninstall.sh" "$HOME""/.local/share/NordIndicator/"
+    sed "s/vpn_on/$HOME\/.local\/share\/NordIndicator\/vpn_on.svg" "./src/NordIndicator.desktop" > "$HOME/.local/share/applications/"
     if [ -f "$HOME""/.config/NordIndicator/config.py" ]; then
         if [ "$1" = "-q" ];then
             echo "New config file saved as config.py.new"
