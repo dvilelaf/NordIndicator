@@ -1,0 +1,147 @@
+#!/bin/bash
+
+# Script to handle system interaction with NordIndicator.py [python3]
+
+PIDs=$(ps aux | grep '[N]ordIndicator.py' | awk '{print $2}')
+PYTHON_SCRIPT="$HOME/.local/share/NordIndicator/NordIndicator.py"
+CONFIG="$HOME/.config/NordIndicator/config.py"
+
+#------------------------------------------------------------------------------------
+#--------------------------------------FUNCTIONS-------------------------------------
+#------------------------------------------------------------------------------------
+
+start () {
+    if [ -n "$PIDs" ]; then
+        echo "NordIndicator already started, try -restart instead"
+    else 
+        echo "Starting NordIndicator"
+        if [[ -v LOG_NI ]]; then
+            echo "Activating Logging"
+            if [[ -v VERBOSE ]]; then
+                python3 $PYTHON_SCRIPT 2>&1 | tee -i $LOG_NI
+            else 
+                nohup python3 $PYTHON_SCRIPT >$LOG_NI 2>&1 &
+            fi
+        elif [[ -v VERBOSE ]]; then
+            python3 $PYTHON_SCRIPT
+        else
+            nohup python3 $PYTHON_SCRIPT >/dev/null 2>&1 &
+        fi
+            echo "NordIndicator Started"
+    fi
+}
+stop () {
+    if [ -z "$PIDs" ]; then
+                echo "NordIndicator is not running"
+        else
+                echo "Stopping NordIndicator"
+                kill "$PIDs"
+                echo "NordIndicator stopped"
+    fi
+}
+restart () {
+    stop
+    start
+    echo "NordIndicator has been restarted"
+}
+help () {
+    echo "NordIndicator is a tray icon implementation for Nordvpn"
+    echo "Commands :"
+    echo '"-h|-help" : Show this help'
+    echo '"-l|-log=path/to/logfile" : Activate logging into a file, useful for debugging purposes'
+    echo ' "-v|-verbose" : Use verbose mode, desactivate quiet mode (default mode)'
+    echo ' "-u|-upgrade" : Use to upgrade the script'
+    echo ' "-s|-start" : Start NordIndicator'
+    echo ' "-S|-stop" : Stop NordIndicator'
+    echo ' "-r|-restart" : Restart NordIndicator'
+    echo "Usage exemple : NordIndicator -v -l=/home/test/NordIndicatorLog.txt -s <-- this will start NordIndicator with both logging and verbose activated"
+}
+upgrade () {
+    VERSION="$(grep "version=" "$CONFIG" | awk '{ print $2}')"
+    NEW_VERSION="$(git ls-remote https://github.com/derkomai/NordIndicator.git HEADS | awk '{ print $1}')"
+    echo "New version is $NEW_VERSION"
+    echo "old version is $VERSION"
+    if [ "$VERSION" = "$NEW_VERSION" ];then
+        echo "Same version is already installed"
+        return
+    else
+        TEMPDIR_NI="$(mktemp -d)"
+        cd "$TEMPDIR_NI"
+        wget "https://github.com/derkomai/NordIndicator/archive/refs/heads/main.zip"
+        unzip *.zip
+        rm *.zip
+        cd *
+        stop
+        if [ -v QUIET ];then
+            echo "quiet mode"
+            ./install.sh -q
+        else
+            ./install.sh
+        fi
+        rm -rf "$TEMPDIR_NI"
+        
+        if grep -q "version=" "$CONFIG";then
+            sed -i "s/version=.*/#version= $NEW_VERSION/" "$CONFIG"
+        else
+            echo "#Do not edit bellow line" >> "$CONFIG"
+            echo "#version= $NEW_VERSION" >> "$CONFIG"
+        fi
+        start
+    fi
+    
+}
+
+#------------------------------------------------------------------------------------
+#------------------------------------SCRIPT BRAIN------------------------------------
+#------------------------------------------------------------------------------------
+
+#If no argument provided, show help and attempt to start
+if [ "$#" -eq 0 ]; then
+    help
+    QUIET=true
+    upgrade
+    exit
+fi
+
+#Check arguments
+for i in "$@"; do
+    case $i in
+        -h|-help)
+            help
+            break #Don't bother checking other arg if any
+        ;; 
+        -v|-verbose)
+            VERBOSE=true
+            shift
+        ;;
+        -uq|-upgradequiet)
+            QUIET=true
+            upgrade
+            break
+        ;;
+        -u|-upgrade)
+            upgrade
+            break
+        ;;
+        -stop|-S)
+            stop
+            shift
+        ;;
+        -start|-s)
+            start
+            shift
+        ;;
+        -restart|-r)
+            restart
+            shift
+        ;;
+        -l=*|-log=*)
+            LOG_NI="${i#*=}"
+            shift
+        ;;
+        *)
+            start_default
+            exit
+        ;;
+    esac
+done
