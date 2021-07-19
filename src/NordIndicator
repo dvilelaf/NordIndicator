@@ -60,7 +60,7 @@ help () {
 }
 upgrade () {
     VERSION="$(grep "version=" "$CONFIG" | awk '{ print $2}')"
-    NEW_VERSION="$(git ls-remote https://github.com/derkomai/NordIndicator.git HEADS | awk '{ print $1}')"
+    NEW_VERSION="$(git ls-remote https://github.com/derkomai/NordIndicator.git HEAD | awk '{ print $1}')"
     echo "New version is $NEW_VERSION"
     echo "old version is $VERSION"
     if [ "$VERSION" = "$NEW_VERSION" ];then

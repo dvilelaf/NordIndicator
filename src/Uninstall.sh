@@ -39,23 +39,28 @@ if [ ! "$1" = "-q" ];then
         esac
     done
 fi
+
+#Attempt to stop
+NordIndicator -stop
+
 #Try to delete old files
 echo "Deleting old files"
 # Application files/Dirs
-rm -f "$HOME""/.local/bin/NordIndicator.py"
-rm -f "$HOME""/.local/bin/NordIndicator"
-rm -f "$HOME""/.local/share/applications/NordIndicator.desktop"
+rm -f "$HOME/.local/bin/NordIndicator.py"
+rm -f "$HOME/.local/bin/NordIndicator"
+rm -f "$HOME/.local/share/applications/NordIndicator.desktop"
+rm -f "$HOME/.config/autostart/NordIndicator.desktop"
     
 #Icons
-rm -f "$HOME""/.local/share/icons/vpn_on.svg"
-rm -f "$HOME""/.local/share/icons/vpn_error.svg"
-rm -f "$HOME""/.local/share/icons/vpn_off.svg"
-rm -f "$HOME""/.local/share/NordIndicator/vpn_on.svg"
-rm -f "$HOME""/.local/share/NordIndicator/vpn_off.svg"
-rm -f "$HOME""/.local/share/NordIndicator/vpn_error.svg"
+rm -f "$HOME/.local/share/icons/vpn_on.svg"
+rm -f "$HOME/.local/share/icons/vpn_error.svg"
+rm -f "$HOME/.local/share/icons/vpn_off.svg"
+rm -f "$HOME/.local/share/NordIndicator/vpn_on.svg"
+rm -f "$HOME/.local/share/NordIndicator/vpn_off.svg"
+rm -f "$HOME/.local/share/NordIndicator/vpn_error.svg"
     
-if grep -q "NordIndicator" "$HOME""/.profile";then
-    sed -i "/NordIndicator/d" /"$HOME"/.profile
+if grep -q "NordIndicator" "$HOME/.profile";then
+    sed -i "/NordIndicator/d" "/$HOME/.profile"
 fi
     
 echo "Old file deletion done"    
