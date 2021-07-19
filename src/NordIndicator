@@ -36,11 +36,13 @@ stop () {
         else
                 echo "Stopping NordIndicator"
                 kill "$PIDs"
+                sleep 5
                 echo "NordIndicator stopped"
     fi
 }
 restart () {
     stop
+    PIDs=$(ps aux | grep '[N]ordIndicator.py' | awk '{print $2}') #check again PIDs for start ()
     start
     echo "NordIndicator has been restarted"
 }
@@ -116,7 +118,7 @@ for i in "$@"; do
         -uq|-upgradequiet)
             QUIET=true
             upgrade
-            break
+            shift
         ;;
         -u|-upgrade)
             upgrade

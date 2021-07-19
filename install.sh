@@ -62,8 +62,9 @@ install () {
     cp "$HOME/.local/share/applications/NordIndicator.desktop" "$HOME/.config/autostart/"
     
     if [ ! "$1" = "-q" ];then
-    # Start NordIndicator
-    NordIndicator
+    
+    # Verify update and start NordIndicator
+    NordIndicator -uq -r
     fi
 }
 
