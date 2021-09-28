@@ -60,7 +60,7 @@ help () {
 }
 upgrade () {
     VERSION="$(grep "version=" "$CONFIG" | awk '{ print $2}')"
-    NEW_VERSION="$(git ls-remote https://github.com/derkomai/NordIndicator.git HEAD | awk '{ print $1}')"
+    NEW_VERSION="$(git ls-remote https://github.com/Spitfireap/NordIndicator.git HEAD | awk '{ print $1}')"
     echo "New version is $NEW_VERSION"
     echo "old version is $VERSION"
     if [ "$VERSION" = "$NEW_VERSION" ];then
@@ -69,7 +69,7 @@ upgrade () {
     else
         TEMPDIR_NI="$(mktemp -d)"
         cd "$TEMPDIR_NI"
-        wget "https://github.com/derkomai/NordIndicator/archive/refs/heads/main.zip"
+        wget "https://github.com/Spitfireap/NordIndicator/archive/refs/heads/main.zip"
         unzip *.zip
         rm *.zip
         cd *
