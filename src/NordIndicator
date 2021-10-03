@@ -14,20 +14,30 @@ start () {
     if [ -n "$PIDs" ]; then
         echo "NordIndicator already started, try -restart instead"
     else 
-        echo "Starting NordIndicator"
-        if [[ -v LOG_NI ]]; then
-            echo "Activating Logging"
-            if [[ -v VERBOSE ]]; then
-                python3 $PYTHON_SCRIPT 2>&1 | tee -i $LOG_NI
-            else 
-                nohup python3 $PYTHON_SCRIPT >$LOG_NI 2>&1 &
+        for i in {0..3}; do
+            echo "Starting NordIndicator"
+            if [[ -v LOG_NI ]]; then
+                echo "Activating Logging"
+                if [[ -v VERBOSE ]]; then
+                    python3 $PYTHON_SCRIPT 2>&1 | tee -i $LOG_NI
+                else 
+                    nohup python3 $PYTHON_SCRIPT >$LOG_NI 2>&1 &
+                fi
+            elif [[ -v VERBOSE ]]; then
+                python3 $PYTHON_SCRIPT
+            else
+                nohup python3 $PYTHON_SCRIPT >/dev/null 2>&1 &
             fi
-        elif [[ -v VERBOSE ]]; then
-            python3 $PYTHON_SCRIPT
-        else
-            nohup python3 $PYTHON_SCRIPT >/dev/null 2>&1 &
-        fi
-            echo "NordIndicator Started"
+            PIDs=$(ps aux | grep '[N]ordIndicator.py' | awk '{print $2}')
+            if [ -z "$PIDs" ]; then
+                echo "NordIndicator is not running"
+                echo "Restarting in" $(($i*3)) "seconds"
+                sleep sleep $(($i*3))
+            else 
+                echo "NordIndicator Started"
+                break 1
+            fi
+        done
     fi
 }
 stop () {
