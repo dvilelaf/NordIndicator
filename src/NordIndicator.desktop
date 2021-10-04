@@ -3,6 +3,6 @@ Encoding=UTF-8
 Version=1.0
 Type=Application
 Terminal=false
-Exec=NordIndicator -uq -r
+Exec=NILocation -uq -r
 Name=NordVPN indicator
 Icon=vpn_on
