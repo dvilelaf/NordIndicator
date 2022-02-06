@@ -20,6 +20,10 @@ NordIndicator is a Python script that lets you connect, disconnect and check you
 * NordIndicator will be launched just after installation. It will also auto-start on system boot.
 * ```python3 NordIndicator.py install```
 
+## Optional Configuration
+You can choose between two countries for quick connection in the menu. By default, it will be Switzerland and United States. To edit these defaults :
+* After installation, go to ```~/.config/NordIndicator```. You can then edit ``config.py`` by replacing `country1` and/or `country2`. Be careful not to make any typo or the quick connect option won't work. You can find a list of availible country by typing ``nordvpn countries`` in a terminal.
+
 ## Uninstallation
 * NordIndicator running processes will be killed before uninstallation.
 * ```python3 NordIndicator.py uninstall```
