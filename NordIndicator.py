@@ -481,9 +481,8 @@ class InstallationHandler:
         # Config file
         self.createConfFile()
 
-        # Launch
-        subprocess.Popen(['python3', f'{self.dstBinDir}/{self.scriptName}'],
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Message the user
+        print(f'{self.appName} has been installed. You can start it from your app launcher.')
 
 
     def createConfFile(self, extension=''):
@@ -519,8 +518,8 @@ class InstallationHandler:
         # Config file
         self.safeDeleteFolder(self.configDir)
 
-        # End process
-        self.killProcessByTag(self.appName)
+        # Message the user
+        print(f'{self.appName} has been uninstalled. You can close any running instance.')
 
 
     def upgrade(self):
@@ -544,20 +543,6 @@ class InstallationHandler:
                 print(f'Local {self.appName} has been upgraded to the latest version.')
             else:
                 print('Upgrade skipped.')
-
-
-    def killProcessByTag(self, tag):
-        result = subprocess.run(['ps', 'aux'], stdout=subprocess.PIPE)
-        processes = result.stdout.decode('utf-8').split('\n')
-        thispid = os.getpid()
-        parentpid = os.getppid()
-
-        for p in processes:
-            if tag in p:
-                fields = [i for i in p.split(' ') if i]
-                pid = int(fields[1])
-                if pid not in [thispid, parentpid]:
-                    os.kill(pid, 9)
 
 
     def generateIcons(self):
