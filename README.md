@@ -8,10 +8,30 @@ NordIndicator is a Python script that lets you connect, disconnect and check you
 * Disconnect
 * Enable/Disable settings by clicking the menu items: technology, cybersec, firewall, killswitch, autoconnect, dns...
 
+## Pre-requirements
+- [NordVPN CLI for GNU/Linux](https://support.nordvpn.com/es/Preguntas-frecuentes/Tutoriales-de-configuraci%c3%b3n/1636892662/Instalar-y-utilizar-NordVPN-en-Debian-Ubuntu-Raspberry-Pi-Elementary-OS-y-Linux-Mint.htm)
+- `python3-gi` package
+- [AppIndicator](https://debian.pkgs.org/10/debian-main-amd64/gir1.2-appindicator3-0.1_0.4.92-7_amd64.deb.html) library (depending on your **Linux distribution**, you may have to install it manually)
+
+  - If the library is not installed, you will face the error; something like that:
+
+    ```
+    $ user@user-pc:~/NordIndicator$ python3 NordIndicator.py install
+
+    Traceback (most recent call last):
+    File "/home/USERNAME/NordIndicator/NordIndicator.py", line 9, in <module> require_version('AppIndicator3', '0.1')
+    File "/usr/lib/python3/dist-packages/gi/__init__.py", line 126, in require_version
+    raise ValueError('Namespace %s not available' % namespace)
+    ValueError: Namespace AppIndicator3 not available
+    ```
+
+    This one was reproduced on **Ubuntu 22.04**. To fix that, install the package (_Ubuntu example_):
+
+    ```
+    sudo apt install gir1.2-appindicator3-0.1
+    ```
+
 ## Notes
-
-* [NordVPN CLI for GNU/Linux](https://support.nordvpn.com/es/Preguntas-frecuentes/Tutoriales-de-configuraci%c3%b3n/1636892662/Instalar-y-utilizar-NordVPN-en-Debian-Ubuntu-Raspberry-Pi-Elementary-OS-y-Linux-Mint.htm) and the  ```python3-gi``` package are required to be installed.
-
 * NordIndicator has been only tested with elementary OS 5.1 (Ubuntu 18.04 based) but due to its simplicity making it work on those distros where it doesn't shouldn't be more than editing a couple of lines of code. The same applies to other VPN providers.
 
 * The installation is made at user-level, so everything happens within your  home directory and no sudo permissions are needed.
