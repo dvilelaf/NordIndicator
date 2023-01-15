@@ -16,6 +16,9 @@ NordIndicator is a Python script that lets you connect, disconnect and check you
 
 * The installation is made at user-level, so everything happens within your  home directory and no sudo permissions are needed.
 
+## Requirements
+* ```sudo apt install gir1.2-notify-0.7```
+
 ## Installation
 * NordIndicator will be launched just after installation. It will also auto-start on system boot.
 * ```python3 NordIndicator.py install```
