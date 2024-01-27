@@ -210,13 +210,13 @@ class NordVPN:
 
                 if 'status' in fieldName:
                     self.status = value
-                elif 'current server' in fieldName:
+                elif 'hostname' in fieldName:
                     self.server = value
                 elif 'country' in fieldName:
                     self.country = value
                 elif 'city' in fieldName:
                     self.city = value
-                elif 'server ip' in fieldName:
+                elif 'ip' in fieldName:
                     self.ip = value
                 elif 'uptime' in fieldName:
                     self.startTime = self.startTimeFromUptime(value)
